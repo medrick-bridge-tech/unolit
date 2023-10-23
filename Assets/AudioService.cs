@@ -6,42 +6,93 @@ using UnityEngine;
 
 public class AudioService : Service
 {
-    private AudioClip _audioClip;
-    private AudioSource _audioSource;
+    //private AudioClip _audioClip;
+    private AudioSourceFader _audioSourceFader1;
+    private AudioSourceFader _audioSourceFader2;
+    private AudioSourceFader _currentAudioSourceFader;
     private float _fadeDuration = 2f;
 
-    public void Initialize(AudioSource audioSource)
+    public void Initialize(AudioSourceFader audioSourceFader1, AudioSourceFader audioSourceFader2)
     {
-        _audioSource = audioSource;
-        _audioSource.loop = true;
-        _audioSource.volume = 0f;
+        _audioSourceFader1 = audioSourceFader1;
+        _audioSourceFader2 = audioSourceFader2;
+        _audioSourceFader1.Loop = true;
+        _audioSourceFader2.Loop = true;
+        _audioSourceFader1.Volume = 0f;
+        _audioSourceFader2.Volume = 0f;
+        
     }
     
-    public IEnumerator Play(AudioClip audioClip)
+    public void Play(AudioClip audioClip)
     {
-        _audioSource.clip = audioClip;
-        _audioSource.Play();
+        var availableAudioSourceFader = GetAvailableAudioSourceFader();
+        var currentAudioSourceFader = GetCurrentAudioSourceFader();
 
-        while (_audioSource.volume < 1f)
+        if (currentAudioSourceFader)
         {
-            _audioSource.volume += Time.deltaTime / _fadeDuration;
-            yield return null;
+            return;
+        }
+        
+        if (availableAudioSourceFader)
+        {
+            availableAudioSourceFader.FadeIn();
+            availableAudioSourceFader.audioSource.clip = audioClip;
+            availableAudioSourceFader.audioSource.Play();
         }
     }
     
     public void Pause()
     {
-        _audioSource.Pause();
+        //check if is already paused return;
+        //otherwise pause it
     }
 
-    public IEnumerator Stop()
+    public void Stop()
     {
-        while (_audioSource.volume > 0f)
+        var availableAudioSourceFader = GetAvailableAudioSourceFader();
+        var currentAudioSourceFader = GetCurrentAudioSourceFader();
+        
+        if (availableAudioSourceFader)
         {
-            _audioSource.volume -= Time.deltaTime / _fadeDuration;
-            yield return null;
+            availableAudioSourceFader.audioSource.Stop();
         }
 
-        _audioSource.Stop();
+        if (currentAudioSourceFader)
+        {
+            currentAudioSourceFader.FadeOut();
+            //currentAudioSourceFader.audioSource.Stop();
+        }
+    }
+
+    private AudioSourceFader GetAvailableAudioSourceFader()
+    {
+        if (_audioSourceFader1.audioSource.clip == null)
+        {
+            return _audioSourceFader1;
+        }
+        else if(_audioSourceFader2.audioSource.clip == null)
+        {
+            return _audioSourceFader2;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    private AudioSourceFader GetCurrentAudioSourceFader()
+    {
+        if (_audioSourceFader1.audioSource.clip != null)
+        {
+            return _audioSourceFader1;
+        }
+        else if(_audioSourceFader2.audioSource.clip != null)
+        {
+            return _audioSourceFader2;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

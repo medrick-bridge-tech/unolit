@@ -19,31 +19,31 @@ public class Player : MonoBehaviour
         transform.position = new Vector2(clampedXPos, clampedYPos);
     }
 
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.name == "Room1")
-        {
-            _roomManager.AudioService.Initialize(_roomManager.AudioSource);
-            StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[0]));
-        }
-        else if (col.name == "Room2")
-        {
-            _roomManager.AudioService.Initialize(_roomManager.AudioSource);
-            StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[1]));
-        }
-        else if (col.name == "Room3")
-        {
-            _roomManager.AudioService.Initialize(_roomManager.AudioSource);
-            StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[2]));
-        }
-        else if (col.name == "Room4")
-        {
-            StartCoroutine(_roomManager.AudioService.Stop());
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D col)
-    {
-        StartCoroutine(_roomManager.AudioService.Stop());
-    }
+    // private void OnTriggerEnter2D(Collider2D col)
+    // {
+    //     if (col.name == "Room1")
+    //     {
+    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
+    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[0]));
+    //     }
+    //     else if (col.name == "Room2")
+    //     {
+    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
+    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[1]));
+    //     }
+    //     else if (col.name == "Room3")
+    //     {
+    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
+    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[2]));
+    //     }
+    //     else if (col.name == "Room4")
+    //     {
+    //         StartCoroutine(_roomManager.AudioService.Stop());
+    //     }
+    // }
+    //
+    // private void OnTriggerExit2D(Collider2D col)
+    // {
+    //     StartCoroutine(_roomManager.AudioService.Stop());
+    // }
 }
