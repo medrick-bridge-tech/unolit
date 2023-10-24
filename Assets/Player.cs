@@ -17,33 +17,35 @@ public class Player : MonoBehaviour
         var clampedXPos = Mathf.Clamp(transform.position.x, -9.5f, 9.5f);
         var clampedYPos = Mathf.Clamp(transform.position.y, -4.5f, 4.5f);
         transform.position = new Vector2(clampedXPos, clampedYPos);
+        
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _roomManager.AudioService.Pause();
+        }
+        
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            _roomManager.AudioService.UnPause();
+            
+        }
     }
 
-    // private void OnTriggerEnter2D(Collider2D col)
-    // {
-    //     if (col.name == "Room1")
-    //     {
-    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
-    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[0]));
-    //     }
-    //     else if (col.name == "Room2")
-    //     {
-    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
-    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[1]));
-    //     }
-    //     else if (col.name == "Room3")
-    //     {
-    //         //_roomManager.AudioService.Initialize(_roomManager.AudioSource1, _roomManager.AudioSource2);
-    //         StartCoroutine(_roomManager.AudioService.Play(_roomManager.AudioClips[2]));
-    //     }
-    //     else if (col.name == "Room4")
-    //     {
-    //         StartCoroutine(_roomManager.AudioService.Stop());
-    //     }
-    // }
-    //
-    // private void OnTriggerExit2D(Collider2D col)
-    // {
-    //     StartCoroutine(_roomManager.AudioService.Stop());
-    // }
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.name == "Room1")
+        {
+            _roomManager.AudioService.Initialize(_roomManager.AudioSourceFader1, _roomManager.AudioSourceFader2);
+            _roomManager.AudioService.Play(_roomManager.AudioClips[0]);
+        }
+        else if (col.name == "Room2")
+        {
+            _roomManager.AudioService.Initialize(_roomManager.AudioSourceFader1, _roomManager.AudioSourceFader2);
+            _roomManager.AudioService.Play(_roomManager.AudioClips[1]);
+        }
+    }
+    
+    private void OnTriggerExit2D(Collider2D col)
+    {
+        _roomManager.AudioService.Stop();
+    }
 }

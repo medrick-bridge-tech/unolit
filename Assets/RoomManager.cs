@@ -16,22 +16,15 @@ public class RoomManager : MonoBehaviour
     public AudioClip[] AudioClips => audioClips;
     public AudioService AudioService => audioService;
 
+    public AudioSourceFader AudioSourceFader1 => audioSourceFader1;
+
+    public AudioSourceFader AudioSourceFader2 => audioSourceFader2;
+
     void Awake()
     {
         ServiceLocator.Instance.Register<AudioService>(new AudioService());
         audioService = ServiceLocator.Instance.Locate<AudioService>();
         
         audioService.Initialize(audioSourceFader1, audioSourceFader2);
-        
-        audioService.Play(audioClips[0]);
-        audioService.Play(audioClips[1]);
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            audioService.Stop();
-        }
     }
 }

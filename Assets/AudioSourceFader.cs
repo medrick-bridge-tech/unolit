@@ -23,6 +23,9 @@ public class AudioSourceFader : MonoBehaviour
         set => audioSource.volume = value;
     }
 
+    private Coroutine _fadeInCoroutine;
+    private Coroutine _fadeOutCoroutine;
+
     public void SetCurrentClip(AudioClip clip)
     {
         currentClip = clip;
@@ -31,12 +34,12 @@ public class AudioSourceFader : MonoBehaviour
 
     public void FadeIn()
     {
-        StartCoroutine(FadeInGradually());
+        _fadeInCoroutine = StartCoroutine(FadeInGradually());
     }
 
     public void FadeOut()
     {
-        StartCoroutine(FadeOutGradually());
+        _fadeOutCoroutine = StartCoroutine(FadeOutGradually());
     }
     
 
@@ -56,6 +59,17 @@ public class AudioSourceFader : MonoBehaviour
             audioSource.volume -= Time.deltaTime / _fadeDuration;
             yield return null;
         }
+        
         audioSource.Stop();
+    }
+    
+    public void StopFadeInCoroutine()
+    {
+        StopCoroutine(_fadeInCoroutine);
+    }
+    
+    public void StopFadeOutCoroutine()
+    {
+        StopCoroutine(_fadeOutCoroutine);
     }
 }
