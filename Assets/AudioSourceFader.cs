@@ -32,9 +32,9 @@ public class AudioSourceFader : MonoBehaviour
         audioSource.clip = clip;
     }
 
-    public void FadeIn()
+    public void FadeIn(float volume)
     {
-        _fadeInCoroutine = StartCoroutine(FadeInGradually());
+        _fadeInCoroutine = StartCoroutine(FadeInGradually(volume));
     }
 
     public void FadeOut()
@@ -43,8 +43,10 @@ public class AudioSourceFader : MonoBehaviour
     }
     
 
-    private IEnumerator FadeInGradually()
+    private IEnumerator FadeInGradually(float volume)
     {
+        audioSource.volume = volume;
+        
         while (audioSource.volume < 1f)
         {
             audioSource.volume += Time.deltaTime / _fadeDuration;
@@ -61,6 +63,7 @@ public class AudioSourceFader : MonoBehaviour
         }
         
         audioSource.Stop();
+        audioSource.clip = null;
     }
     
     public void StopFadeInCoroutine()

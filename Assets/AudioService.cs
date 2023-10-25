@@ -16,27 +16,33 @@ public class AudioService : Service
         _audioSourceFader2 = audioSourceFader2;
         _audioSourceFader1.Loop = true;
         _audioSourceFader2.Loop = true;
-        _audioSourceFader1.Volume = 0f;
-        _audioSourceFader2.Volume = 0f;
     }
     
     public void Play(AudioClip audioClip)
     {
-        var availableAudioSourceFader = GetAvailableAudioSourceFader();
         var currentAudioSourceFader = GetCurrentAudioSourceFader();
 
-        if (availableAudioSourceFader)
+        if (currentAudioSourceFader && currentAudioSourceFader.audioSource.clip == audioClip)
         {
-            availableAudioSourceFader.audioSource.clip = audioClip;
-            availableAudioSourceFader.audioSource.Play();
-            availableAudioSourceFader.FadeIn();
-            currentAudioSourceFader.audioSource.clip = null;
+            currentAudioSourceFader.StopFadeOutCoroutine();
+            currentAudioSourceFader.FadeIn(currentAudioSourceFader.Volume); 
         }
+        else
+        {
+            var availableAudioSourceFader = GetAvailableAudioSourceFader();
+
+            if (availableAudioSourceFader)
+            {
+                availableAudioSourceFader.audioSource.clip = audioClip;
+                availableAudioSourceFader.audioSource.Play();
+                availableAudioSourceFader.FadeIn(0);
+            }
+        }
+        
     }
     
     public void Pause()
     {
-        var availableAudioSourceFader = GetAvailableAudioSourceFader();
         var currentAudioSourceFader = GetCurrentAudioSourceFader();
         
         if (currentAudioSourceFader)
@@ -49,7 +55,6 @@ public class AudioService : Service
     
     public void UnPause()
     {
-        var availableAudioSourceFader = GetAvailableAudioSourceFader();
         var currentAudioSourceFader = GetCurrentAudioSourceFader();
         
         if (currentAudioSourceFader)
@@ -62,15 +67,11 @@ public class AudioService : Service
     {
         var availableAudioSourceFader = GetAvailableAudioSourceFader();
         var currentAudioSourceFader = GetCurrentAudioSourceFader();
-        
-        if (availableAudioSourceFader)
-        {
-            availableAudioSourceFader.audioSource.Stop();
-        }
 
         if (currentAudioSourceFader)
         {
             currentAudioSourceFader.FadeOut();
+            currentAudioSourceFader.StopFadeInCoroutine();
         }
     }
 
