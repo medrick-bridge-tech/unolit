@@ -78,17 +78,11 @@ public class AudioService : Service
     private AudioSourceFader GetAvailableAudioSourceFader()
     {
         if (_audioSourceFader1.audioSource.clip == null)
-        {
             return _audioSourceFader1;
-        }
         else if(_audioSourceFader2.audioSource.clip == null)
-        {
             return _audioSourceFader2;
-        }
         else
-        {
             return null;
-        }
     }
     
     private AudioSourceFader GetCurrentAudioSourceFader()
