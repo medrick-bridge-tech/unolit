@@ -1,108 +1,100 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Medrick.Unolit.Service;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class AudioService : Service
-{
-    private AudioSourceFader _audioSourceFader1;
-    private AudioSourceFader _audioSourceFader2;
-    private float _fadeDuration = 2f;
-
-    public void Initialize(AudioSourceFader audioSourceFader1, AudioSourceFader audioSourceFader2)
+namespace Medrick.Unolit.Service
+{ 
+    public class AudioService : Service
     {
-        _audioSourceFader1 = audioSourceFader1;
-        _audioSourceFader2 = audioSourceFader2;
-        _audioSourceFader1.Loop = true;
-        _audioSourceFader2.Loop = true;
-    }
-    
-    public void Play(AudioClip audioClip)
-    {
-        var currentAudioSourceFader = GetCurrentAudioSourceFader();
+        private List<AudioSourceFader> _audioSourceFaders = new List<AudioSourceFader>();
 
-        if (currentAudioSourceFader && currentAudioSourceFader.audioSource.clip == audioClip)
-        {
-            currentAudioSourceFader.StopFadeOutCoroutine();
-            currentAudioSourceFader.FadeIn(currentAudioSourceFader.Volume); 
-        }
-        else
-        {
-            var availableAudioSourceFader = GetAvailableAudioSourceFader();
+        public Action OnClipPaused;
+        public Action OnClipPlayed;
+        public Action OnClipStopped;
 
-            if (availableAudioSourceFader)
+        public void Initialize(List<AudioSourceFader> audioSourceFaders)
+        {
+            for (int i = 0; i < audioSourceFaders.Count; i++)
             {
-                availableAudioSourceFader.audioSource.clip = audioClip;
-                availableAudioSourceFader.audioSource.Play();
-                availableAudioSourceFader.FadeIn(0);
+                _audioSourceFaders.Add(audioSourceFaders[i]);
+                _audioSourceFaders[i].Loop = true;
             }
         }
-        
-    }
     
-    public void Pause()
-    {
-        var currentAudioSourceFader = GetCurrentAudioSourceFader();
-        
-        if (currentAudioSourceFader)
+        public void Play(AudioClip audioClip)
         {
-            currentAudioSourceFader.audioSource.Pause();
+            var currentAudioSourceFader = GetCurrentAudioSourceFader();
+
+            if (currentAudioSourceFader && currentAudioSourceFader.audioSource.clip == audioClip)
+            {
+                OnClipPlayed?.Invoke();
+                currentAudioSourceFader.FadeIn(currentAudioSourceFader.Volume); 
+            }
+            else
+            {
+                var availableAudioSourceFader = GetAvailableAudioSourceFader();
+
+                if (availableAudioSourceFader)
+                {
+                    availableAudioSourceFader.audioSource.clip = audioClip;
+                    availableAudioSourceFader.audioSource.Play();
+                    availableAudioSourceFader.FadeIn(0);
+                }
+            }
         }
-        
-        currentAudioSourceFader.StopFadeInCoroutine();
-    }
     
-    public void UnPause()
-    {
-        var currentAudioSourceFader = GetCurrentAudioSourceFader();
+        public void Pause()
+        {
+            var currentAudioSourceFader = GetCurrentAudioSourceFader();
         
-        if (currentAudioSourceFader)
-        {
-            currentAudioSourceFader.audioSource.UnPause();
+            if (currentAudioSourceFader)
+                currentAudioSourceFader.audioSource.Pause();
+            
+            OnClipPaused?.Invoke();
         }
-    }
+    
+        public void UnPause()
+        { 
+            var currentAudioSourceFader = GetCurrentAudioSourceFader();
+        
+            if (currentAudioSourceFader)
+                currentAudioSourceFader.audioSource.UnPause();
+        }
 
-    public void Stop()
-    {
-        var availableAudioSourceFader = GetAvailableAudioSourceFader();
-        var currentAudioSourceFader = GetCurrentAudioSourceFader();
+        public void Stop()
+        {
+            var currentAudioSourceFader = GetCurrentAudioSourceFader();
 
-        if (currentAudioSourceFader)
-        {
-            currentAudioSourceFader.FadeOut();
-            currentAudioSourceFader.StopFadeInCoroutine();
+            if (currentAudioSourceFader)
+            {
+                currentAudioSourceFader.FadeOut();
+                OnClipStopped?.Invoke();
+            }
         }
-    }
 
-    private AudioSourceFader GetAvailableAudioSourceFader()
-    {
-        if (_audioSourceFader1.audioSource.clip == null)
+        private AudioSourceFader GetAvailableAudioSourceFader()
         {
-            return _audioSourceFader1;
-        }
-        else if(_audioSourceFader2.audioSource.clip == null)
-        {
-            return _audioSourceFader2;
-        }
-        else
-        {
+            for (int i = 0; i < _audioSourceFaders.Count; i++)
+            {
+                if (_audioSourceFaders[i].audioSource.clip == null)
+                    return _audioSourceFaders[i];
+            }
+            
             return null;
         }
-    }
     
-    private AudioSourceFader GetCurrentAudioSourceFader()
-    {
-        if (_audioSourceFader1.audioSource.clip != null)
+        private AudioSourceFader GetCurrentAudioSourceFader()
         {
-            return _audioSourceFader1;
-        }
-        else if(_audioSourceFader2.audioSource.clip != null)
-        {
-            return _audioSourceFader2;
-        }
-        else
-        {
+            for (int i = 0; i < _audioSourceFaders.Count; i++)
+            {
+                if (_audioSourceFaders[i].audioSource.clip != null)
+                    return _audioSourceFaders[i];
+            }
+            
             return null;
         }
     }

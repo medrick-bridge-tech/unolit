@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine;
 public class AudioSourceFader : MonoBehaviour
 {
     public AudioSource audioSource;
-    private float _fadeDuration = 2f;
+    [SerializeField] private float _fadeDuration = 2f;
     private AudioClip currentClip;
 
     public AudioClip CurrentClip => currentClip;
@@ -26,6 +27,22 @@ public class AudioSourceFader : MonoBehaviour
     private Coroutine _fadeInCoroutine;
     private Coroutine _fadeOutCoroutine;
 
+    public RoomManager roomManager;
+
+    private void OnEnable()
+    {
+        roomManager.AudioService.OnClipPaused += StopFadeInCoroutine;
+        roomManager.AudioService.OnClipPlayed += StopFadeOutCoroutine;
+        roomManager.AudioService.OnClipStopped += StopFadeInCoroutine;
+    }
+
+    private void OnDisable()
+    {
+        roomManager.AudioService.OnClipPaused -= StopFadeInCoroutine;
+        roomManager.AudioService.OnClipPlayed -= StopFadeOutCoroutine;
+        roomManager.AudioService.OnClipStopped -= StopFadeInCoroutine;
+    }
+
     public void SetCurrentClip(AudioClip clip)
     {
         currentClip = clip;
@@ -42,10 +59,9 @@ public class AudioSourceFader : MonoBehaviour
         _fadeOutCoroutine = StartCoroutine(FadeOutGradually());
     }
     
-
-    private IEnumerator FadeInGradually(float volume)
+    private IEnumerator FadeInGradually(float startingVolume)
     {
-        audioSource.volume = volume;
+        audioSource.volume = startingVolume;
         
         while (audioSource.volume < 1f)
         {
